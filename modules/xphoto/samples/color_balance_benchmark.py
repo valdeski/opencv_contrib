@@ -49,6 +49,20 @@ def evaluate(im, algo, gt_illuminant, i, range_thresh, bin_num, dst_folder, mode
         new_im = inst.balanceWhite(im)
     elif algo=="nothing":
         new_im = im
+    elif algo.split(":")[0]=="grayedge":
+        mode = algo.split(":")[1]
+        if len(mode) == 0:
+            mode = "grayedge"
+        mode_map = {
+            "grayworld": cv2.xphoto.GrayEdgeWB_GrayWorld,
+            "maxgrb": cv2.xphoto.GrayEdgeWB_MaxRGB,
+            "shades": cv2.xphoto.GrayEdgeWB_ShadesOfGray,
+            "general": cv2.xphoto.GrayEdgeWB_GeneralGrayWorld,
+            "grayedge": cv2.xphoto.GrayEdgeWB_GrayEdge,
+            "grayedge2": cv2.xphoto.GrayEdgeWB_GrayEdge2,
+        }
+        inst = cv2.xphoto.createGrayEdgeWB(mode_map[mode])
+        new_im = inst.balanceWhite(im)
     elif algo.split(":")[0]=="learning_based":
         model_path = ""
         if len(algo.split(":"))>1:
@@ -150,9 +164,11 @@ if __name__ == '__main__':
         metavar="ALGORITHMS",
         default="",
         help=("Comma-separated list of color balance algorithms to evaluate. "
-              "Currently available: GT,learning_based,grayworld,nothing. "
+              "Currently available: GT,learning_based,grayworld,grayedge,nothing. "
               "Use a colon to set a specific model for the learning-based "
-              "algorithm, e.g. learning_based:model1.yml,learning_based:model2.yml"))
+              "algorithm, e.g. learning_based:model1.yml,learning_based:model2.yml. "
+              "Use a colon to set specific mode for grayedge "
+              "(one of grayworld, maxgrb, shades, general, grayedge, grayedge2)."))
     parser.add_argument(
         "-i",
         "--input_folder",

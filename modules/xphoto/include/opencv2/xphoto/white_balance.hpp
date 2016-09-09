@@ -151,6 +151,45 @@ class CV_EXPORTS_W GrayworldWB : public WhiteBalancer
  */
 CV_EXPORTS_W Ptr<GrayworldWB> createGrayworldWB();
 
+/** @brief The Gray Edge white balance algorithm
+
+Gray Edge color constancy algorithm is based on low-level image features @cite van2007edge . This
+framework also includes well known algorithms like Gray-World, max-RGB and Shades of Gray.
+
+*/
+class CV_EXPORTS_W GrayEdgeWB : public WhiteBalancer
+{
+public:
+
+    enum Mode
+    {
+        GrayWorld, //!< Gray-World - diff_order = 0, mink_norm = 1, sigma = 0
+        MaxRGB, //!< Max-RGB - diff_order = 0, mink_norm = -1, sigma = 0
+        ShadesOfGray, //!< Shades of Gray - diff_order = 0, mink_norm = 5, sigma = 0
+        GeneralGrayWorld, //!< General Gray-World - diff_order = 0, mink_norm = 5, sigma = 2
+        GrayEdge, //!< Gray-Edge - diff_order = 1, mink_norm = 5, sigma = 2
+        GrayEdge2 //!< 2nd Order Gray-Edge - diff_order = 2, mink_norm = 5, sigma = 2
+    };
+
+    /** Filter size. */
+    CV_WRAP virtual void setSigma(int sigma_) = 0;
+    /** Minkowski norm can be any number between 1 and infinity. */
+    CV_WRAP virtual void setMinkNorm(int norm_) = 0;
+    /** Diff_order = 1 or 2, for 1st-order or 2nd-order derivative. */
+    CV_WRAP virtual void setDiffOrder(int order_) = 0;
+
+    /** @sa setSigma */
+    CV_WRAP virtual int getSigma() const = 0;
+    /** @sa setMinkNorm */
+    CV_WRAP virtual int getMinkNorm() const = 0;
+    /** @sa setDiffOrder */
+    CV_WRAP virtual int getDiffOrder() const = 0;
+};
+
+/** @brief Create an instance if GrayEdgeWB algorithm */
+CV_EXPORTS_W Ptr<GrayEdgeWB> createGrayEdge(int mode);
+
+
 /** @brief More sophisticated learning-based automatic white balance algorithm.
 
 As @ref GrayworldWB, this algorithm works by applying different gains to the input
@@ -223,6 +262,40 @@ CV_EXPORTS_W Ptr<LearningBasedWB> createLearningBasedWB(const String& path_to_mo
 @param gainR gain for the R channel
 */
 CV_EXPORTS_W void applyChannelGains(InputArray src, OutputArray dst, float gainB, float gainG, float gainR);
+
+/** @brief ColorTransfer
+
+Color Transfer is a technique to impose one image’s color characteristics on another. We can
+achieve color correction by choosing an appropriate source image and apply its characteristic to
+another image. Applications range from subtle postprocessing on images to improve their appearance
+to more dramatic alterations, such as converting a daylight image into a night scene (@cite reinhard2001color).
+
+@param src Input 8-bit 3-channel image.
+@param dst Input 8-bit 3-channel image.
+@param color_transfer Output 8-bit 3-channel image.
+@param flag 0 for computation in Lab colorspace and 1 for RGB colorspace.
+
+The color is transferred from destination to source image.
+*/
+CV_EXPORTS_W void colorTransfer(InputArray _src, InputArray _dst, OutputArray _color_transfer, bool useRGB = false);
+
+/** @brief Intrinsic Image Decomposition
+
+Intrinsic Image Decomposition is referred as the separation of illumination (shading) and
+reflectance components from an input photograph. Many computer vision algorithms, such as
+segmentation, recognition, and motion estimation are confounded by illumination effects in the
+image. The performance of these algorithms may benefit substantially from reliable estimation of
+illumination-invariant material properties for all objects in the scene (@cite shen2011intrinsic).
+
+@param src Input 8-bit 3-channel image.
+@param shading Output 8-bit 1-channel image.
+@param reflectance Output 8-bit 3-channel image.
+@param window Local window of the source image. Default value is 3.
+@param no_of_iter Number of iterations required to converge. Default value is 100.
+@param rho Default value is 1.9
+*/
+CV_EXPORTS_W void intrinsicDecompose(InputArray _src, OutputArray _ref, OutputArray _shade, int window = 3, int no_of_iter = 100, float rho = 1.9f);
+
 //! @}
 }
 }
