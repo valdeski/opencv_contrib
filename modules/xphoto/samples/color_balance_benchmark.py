@@ -55,13 +55,13 @@ def evaluate(im, algo, gt_illuminant, i, range_thresh, bin_num, dst_folder, mode
             mode = "grayedge"
         mode_map = {
             "grayworld": cv2.xphoto.GrayEdgeWB_GrayWorld,
-            "maxgrb": cv2.xphoto.GrayEdgeWB_MaxRGB,
+            "maxrgb": cv2.xphoto.GrayEdgeWB_MaxRGB,
             "shades": cv2.xphoto.GrayEdgeWB_ShadesOfGray,
             "general": cv2.xphoto.GrayEdgeWB_GeneralGrayWorld,
             "grayedge": cv2.xphoto.GrayEdgeWB_GrayEdge,
             "grayedge2": cv2.xphoto.GrayEdgeWB_GrayEdge2,
         }
-        inst = cv2.xphoto.createGrayEdgeWB(mode_map[mode])
+        inst = cv2.xphoto.createGrayEdge(mode_map[mode])
         new_im = inst.balanceWhite(im)
     elif algo.split(":")[0]=="learning_based":
         model_path = ""
